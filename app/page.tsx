@@ -1,41 +1,27 @@
-'use client'
+import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import Link from "next/link";
 
-import React from 'react'
-
-export default function Page() {
-  const [isBlack, setIsBlack] = React.useState(false)
-
+export default function HomePage() {
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '60vh',
-      backgroundColor: isBlack ? '#000' : '#fff',
-      color: isBlack ? '#fff' : '#000',
-      transition: 'all 0.3s ease',
-      borderRadius: '8px',
-      border: '1px solid #eaeaea'
-    }}>
-      <h2>Bem-vindo ao AetherHub</h2>
-      <p>Este é o seu painel de biblioteca em construção.</p>
-      
-      <button 
-        onClick={() => setIsBlack(!isBlack)}
-        style={{
-          padding: '10px 20px',
-          fontSize: '16px',
-          cursor: 'pointer',
-          marginTop: '20px',
-          borderRadius: '5px',
-          border: 'none',
-          backgroundColor: isBlack ? '#fff' : '#333',
-          color: isBlack ? '#000' : '#fff'
-        }}
-      >
-        Mudar para {isBlack ? 'Branco' : 'Preto'}
-      </button>
-    </div>
-  )
+    <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'sans-serif' }}>
+      <h1>AetherHub</h1>
+      <p>Gerencie seus decks de forma profissional.</p>
+
+      <SignedOut>
+        <SignInButton mode="modal">
+          <button style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#0070f3', color: '#fff', border: 'none', borderRadius: '5px' }}>
+            Entrar com Google
+          </button>
+        </SignInButton>
+      </SignedOut>
+
+      <SignedIn>
+        <Link href="/biblioteca">
+          <button style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '5px' }}>
+            Acessar Minha Biblioteca
+          </button>
+        </Link>
+      </SignedIn>
+    </main>
+  );
 }
