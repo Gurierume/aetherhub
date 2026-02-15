@@ -1,21 +1,21 @@
-import { Botão do usuário, Botão de saída de assinatura } from "@clerk/nextjs";
-import { Usuário atual } from "@clerk/nextjs/servidor";
-import { criarCliente } from "@supabase/supabase-js";
-import { revalidarCaminho } from "next/cache";
+import { UserButton, SignOutButton } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
+import { createClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 
-const supabase = criarCliente(
+const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export default async function BibliotecaPágina() {
-  const usuário = await Usuário atual();
+export default async function BibliotecaPage() {
+  const user = await currentUser();
 
   // Buscar as fichas do usuário no Supabase
   const { data: fichas } = await supabase
     .from('decks')
     .select('*')
-    .eq('usuario_id', usuário?.id)
+    .eq('usuario_id', user?.id)
     .order('created_at', { ascending: false });
 
   // Função para criar uma nova ficha
@@ -23,8 +23,8 @@ export default async function BibliotecaPágina() {
     "use server";
     await supabase
       .from('decks')
-      .insert([{ nome: 'Nova Ficha Estratégica', usuario_id: usuário?.id }]);
-    revalidarCaminho('/biblioteca');
+      .insert([{ nome: 'Nova Ficha Estratégica', usuario_id: user?.id }]);
+    revalidatePath('/biblioteca');
   }
 
   // Função para remover uma ficha
@@ -34,8 +34,8 @@ export default async function BibliotecaPágina() {
       .from('decks')
       .delete()
       .eq('id', id)
-      .eq('usuario_id', usuário?.id);
-    revalidarCaminho('/biblioteca');
+      .eq('usuario_id', user?.id);
+    revalidatePath('/biblioteca');
   }
 
   return (
@@ -43,15 +43,66 @@ export default async function BibliotecaPágina() {
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #eaeaea", paddingBottom: "1rem" }}>
         <div>
           <h1 style={{ margin: 0 }}>AetherHub</h1>
-          <p style={{ color: "#666" }}>Bem-vindo à sua coleção, <strong>{usuário?.firstName || "Explorador"}</strong></p>
+          <p style={{ color: "#666" }}>Bem-vindo à sua coleção, <strong>{user?.firstName || "Explorador"}</strong></p>
         </div>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-          <Botão de saída de assinatura redirectUrl="/">
+          <SignOutButton redirectUrl="/">
             <button style={{ padding: "8px 12px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px" }}>Sair</button>
-          </Botão de saída de assinatura>
-          <Botão do usuário afterSignOutUrl="/" />
+          </SignOutButton>
+          <UserButton afterSignOutUrl="/" />
         </div>
       </header>
 
       <main style={{ marginTop: "2rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+          <h2>Minhas Fichas</h2>
+          <form action={criarFicha}>
+            <button type="submit" style={{ padding: "10px 20px", backgroundColor: "#0070f3", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
+              + Nova Ficha
+            </button>
+          </form>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
+          {fichas && fichas.map((ficha) => (
+            <div key={ficha.id} style={{ 
+              padding: "1.5rem", 
+              border: "1px solid #ddd", 
+              borderRadius: "10px", 
+              backgroundColor: "#fff",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.05)"
+            }}>
+              <h3 style={{ margin: "0 0 10px 0", fontSize: "1.1rem" }}>{ficha.nome}</h3>
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                Criada em: {new Date(ficha.created_at).toLocaleDateString('pt-BR')}
+              </p>
+              
+              <form 
+                action={removerFicha.bind(null, ficha.id)} 
+                onSubmit={(e) => {
+                  if (!confirm("Você tem certeza que deseja apagar esta ficha? Esta ação não pode ser desfeita.")) {
+                    e.preventDefault();
+                  }
+                }}
+                style={{ marginTop: "15px" }}
+              >
+                <button type="submit" style={{ 
+                  backgroundColor: "#fff1f0", 
+                  color: "#ff4d4f", 
+                  border: "1px solid #ffccc7", 
+                  borderRadius: "4px", 
+                  padding: "6px 8px", 
+                  cursor: "pointer",
+                  fontSize: "0.75rem",
+                  width: "100%"
+                }}>
+                  🗑️ Remover Ficha
+                </button>
+              </form>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}
