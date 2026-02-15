@@ -1,54 +1,27 @@
-import { UserButton } from "@clerk/nextjs";
-import { currentUser } from "@clerk/nextjs/server";
+import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import Link from "next/link";
 
-export default async function BibliotecaPage() {
-  const user = await currentUser();
-
+export default function HomePage() {
   return (
-    <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto", fontFamily: "sans-serif" }}>
-      {/* Cabeçalho com Nome e Botão de Perfil */}
-      <header style={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center", 
-        borderBottom: "1px solid #eaeaea",
-        paddingBottom: "1rem" 
-      }}>
-        <div>
-          <h1 style={{ margin: 0 }}>AetherHub</h1>
-          <p style={{ color: "#666" }}>Bem-vindo de volta, <strong>{user?.firstName || user?.emailAddresses[0].emailAddress}</strong>!</p>
-        </div>
-        <UserButton afterSignOutUrl="/" />
-      </header>
-      
-      {/* Grade de Decks (Placeholder) */}
-      <main style={{ marginTop: "2rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2>Meus Decks</h2>
-          <button style={{ 
-            padding: "8px 16px", 
-            backgroundColor: "#0070f3", 
-            color: "white", 
-            border: "none", 
-            borderRadius: "5px",
-            cursor: "pointer" 
-          }}>
-            + Novo Deck
-          </button>
-        </div>
+    <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'sans-serif' }}>
+      <h1>AetherHub</h1>
+      <p>Gerencie seus decks de forma profissional.</p>
 
-        <div style={{ 
-          display: "grid", 
-          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", 
-          gap: "1.5rem", 
-          marginTop: "1.5rem" 
-        }}>
-          {/* Card de Exemplo */}
-          <div style={{ padding: "1.5rem", border: "1px dashed #ccc", borderRadius: "8px", textAlign: "center" }}>
-            <p style={{ color: "#999" }}>Você ainda não tem decks criados.</p>
-          </div>
-        </div>
-      </main>
-    </div>
+      <SignedOut>
+        <SignInButton mode="modal">
+          <button style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#0070f3', color: '#fff', border: 'none', borderRadius: '5px' }}>
+            Entrar com Google
+          </button>
+        </SignInButton>
+      </SignedOut>
+
+      <SignedIn>
+        <Link href="/biblioteca">
+          <button style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '5px' }}>
+            Acessar Minha Biblioteca
+          </button>
+        </Link>
+      </SignedIn>
+    </main>
   );
 }
