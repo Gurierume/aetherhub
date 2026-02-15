@@ -11,14 +11,14 @@ const supabase = createClient(
 export default async function BibliotecaPage() {
   const user = await currentUser();
 
-  // Buscar as fichas do usuário
+  // Buscar as fichas do usuário no Supabase
   const { data: fichas } = await supabase
     .from('decks')
     .select('*')
     .eq('usuario_id', user?.id)
     .order('created_at', { ascending: false });
 
-  // Função para criar nova ficha
+  // Função para criar uma nova ficha
   async function criarFicha() {
     "use server";
     await supabase
@@ -27,14 +27,14 @@ export default async function BibliotecaPage() {
     revalidatePath('/biblioteca');
   }
 
-  // Função para remover uma ficha específica
+  // Função para remover uma ficha
   async function removerFicha(id: string) {
     "use server";
     await supabase
       .from('decks')
       .delete()
       .eq('id', id)
-      .eq('usuario_id', user?.id); // Segurança extra: garante que você só deleta o que é seu
+      .eq('usuario_id', user?.id);
     revalidatePath('/biblioteca');
   }
 
@@ -46,7 +46,9 @@ export default async function BibliotecaPage() {
           <p style={{ color: "#666" }}>Bem-vindo à sua coleção, <strong>{user?.firstName || "Explorador"}</strong></p>
         </div>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-          <SignOutButton redirectUrl="/"><button style={{ padding: "8px 12px", cursor: "pointer" }}>Sair</button></SignOutButton>
+          <SignOutButton redirectUrl="/">
+            <button style={{ padding: "8px 12px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px" }}>Sair</button>
+          </SignOutButton>
           <UserButton afterSignOutUrl="/" />
         </div>
       </header>
@@ -72,7 +74,27 @@ export default async function BibliotecaPage() {
             }}>
               <h3 style={{ margin: "0 0 10px 0", fontSize: "1.1rem" }}>{ficha.nome}</h3>
               <p style={{ fontSize: "0.85rem", color: "#888" }}>
-                {new Date(ficha.created_at).toLocaleDateString('pt-BR')}
+                Criada em: {new Date(ficha.created_at).toLocaleDateString('pt-BR')}
               </p>
               
-              {/* Botão de Remover
+              <form action={removerFicha.bind(null, ficha.id)} style={{ marginTop: "15px" }}>
+                <button type="submit" style={{ 
+                  backgroundColor: "transparent", 
+                  color: "#ff4d4f", 
+                  border: "1px solid #ff4d4f", 
+                  borderRadius: "4px", 
+                  padding: "4px 8px", 
+                  cursor: "pointer",
+                  fontSize: "0.75rem",
+                  width: "100%"
+                }}>
+                  Remover Ficha
+                </button>
+              </form>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}
