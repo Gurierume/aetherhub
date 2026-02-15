@@ -1,95 +1,64 @@
-import React, { useState, useEffect } from 'react';
-// Nota: Para este teste inicial, usaremos estados locais. 
-// No próximo passo, conectaremos com as chaves do Supabase que copiou.
+'use client';
+
+import React, { useState } from 'react';
 
 export default function App() {
-  // Estado para a "vibe" do site (Customização em tempo real)
+  // Estado para a "vibe" do Aether Hub
   const [vibe, setVibe] = useState({
-    primaryColor: '#6366f1', // Indigo padrão
-    bgColor: '#0f172a',      // Slate escuro
-    textColor: '#f8fafc',    // Slate claro
-    borderRadius: '0.75rem'  // Bordas arredondadas
+    primary: '#6366f1',
+    bg: '#050505',
+    text: '#ffffff'
   });
 
-  // Presets de Vibe para teste rápido
   const presets = [
-    { name: 'Aether Default', primary: '#6366f1', bg: '#0f172a', text: '#f8fafc' },
+    { name: 'Aether Default', primary: '#6366f1', bg: '#050505', text: '#ffffff' },
     { name: 'Neon Cyber', primary: '#00ff41', bg: '#000000', text: '#00ff41' },
-    { name: 'Royal Atelier', primary: '#fbbf24', bg: '#1e1b4b', text: '#fef3c7' },
-    { name: 'Minimal White', primary: '#000000', bg: '#ffffff', text: '#171717' },
+    { name: 'Royal Atelier', primary: '#fbbf24', bg: '#1e1b4b', text: '#fef3c7' }
   ];
 
   return (
-    <div 
-      className="min-h-screen transition-colors duration-500 p-8 font-sans"
-      style={{ backgroundColor: vibe.bgColor, color: vibe.textColor }}
-    >
-      {/* Header do Hub */}
-      <header className="max-w-4xl mx-auto flex justify-between items-center mb-16">
-        <div className="flex items-center gap-3">
-          <div 
-            className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xl shadow-lg"
-            style={{ backgroundColor: vibe.primaryColor, color: vibe.bgColor }}
-          >
-            A
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">Aether Hub</h1>
+    <div style={{
+      backgroundColor: vibe.bg,
+      color: vibe.text,
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontFamily: 'sans-serif',
+      transition: 'all 0.5s ease'
+    }}>
+      <main style={{ textAlign: 'center', padding: '2rem' }}>
+        <h1 style={{ fontSize: '3rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+          Aether<span style={{ color: vibe.primary, fontWeight: '900' }}>Hub</span>
+        </h1>
+        
+        <p style={{ opacity: 0.6, fontSize: '12px', tracking: '0.1em', marginBottom: '3rem' }}>
+          Módulo Chameleon Ativo
+        </p>
+
+        {/* Seleção de Vibe */}
+        <div style={{ display: 'grid', gap: '10px' }}>
+          {presets.map((p) => (
+            <button
+              key={p.name}
+              onClick={() => setVibe({ primary: p.primary, bg: p.bg, text: p.text })}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                border: `1px solid ${vibe.primary}44`,
+                color: vibe.text,
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '2px'
+              }}
+            >
+              Ativar {p.name}
+            </button>
+          ))}
         </div>
-        <span className="text-sm opacity-60 uppercase tracking-widest">Atelier Studios</span>
-      </header>
-
-      {/* Conteúdo Principal */}
-      <main className="max-w-4xl mx-auto">
-        <section className="mb-12">
-          <h2 className="text-4xl font-extrabold mb-4">Bem-vindo ao seu Éter.</h2>
-          <p className="text-lg opacity-80 max-w-xl">
-            Esta é a base do Aether Hub. Aqui você poderá customizar sua identidade, 
-            gerenciar suas fichas e definir sua própria vibe visual.
-          </p>
-        </section>
-
-        {/* Módulo Chameleon (Teste de Vibe) */}
-        <section 
-          className="p-6 rounded-2xl border border-white/10 backdrop-blur-sm"
-          style={{ borderRadius: vibe.borderRadius, backgroundColor: 'rgba(255,255,255,0.03)' }}
-        >
-          <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: vibe.primaryColor }}></span>
-            Módulo Chameleon: Teste de Vibe
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {presets.map((p) => (
-              <button
-                key={p.name}
-                onClick={() => setVibe({ ...vibe, primaryColor: p.primary, bgColor: p.bg, textColor: p.text })}
-                className="flex items-center justify-between p-4 rounded-xl border border-white/5 hover:border-white/20 transition-all text-left"
-                style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
-              >
-                <span className="font-medium">{p.name}</span>
-                <div className="flex gap-1">
-                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: p.primary }}></div>
-                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: p.bg }}></div>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-8 pt-8 border-t border-white/5">
-            <p className="text-sm opacity-50 mb-4">Ajuste Manual de Cor Primária:</p>
-            <input 
-              type="color" 
-              value={vibe.primaryColor}
-              onChange={(e) => setVibe({...vibe, primaryColor: e.target.value})}
-              className="w-full h-12 rounded-lg cursor-pointer bg-transparent border-none"
-            />
-          </div>
-        </section>
-
-        {/* Footer de Status */}
-        <footer className="mt-16 text-center opacity-30 text-xs">
-          <p>Aether Hub Engine v1.0 | Status: Online (Test Mode)</p>
-        </footer>
       </main>
     </div>
   );
