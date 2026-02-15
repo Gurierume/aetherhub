@@ -11,14 +11,12 @@ const supabase = createClient(
 export default async function BibliotecaPage() {
   const user = await currentUser();
 
-  // Buscar as fichas do usuário no Supabase
   const { data: fichas } = await supabase
     .from('decks')
     .select('*')
     .eq('usuario_id', user?.id)
     .order('created_at', { ascending: false });
 
-  // Função para criar uma nova ficha
   async function criarFicha() {
     "use server";
     await supabase
@@ -27,7 +25,6 @@ export default async function BibliotecaPage() {
     revalidatePath('/biblioteca');
   }
 
-  // Função para remover uma ficha
   async function removerFicha(id: string) {
     "use server";
     await supabase
@@ -63,32 +60,42 @@ export default async function BibliotecaPage() {
           </form>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
           {fichas && fichas.map((ficha) => (
             <div key={ficha.id} style={{ 
               padding: "1.5rem", 
               border: "1px solid #ddd", 
               borderRadius: "10px", 
-              backgroundColor: "#f9f9f9",
-              position: "relative"
+              backgroundColor: "#fff",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.05)"
             }}>
               <h3 style={{ margin: "0 0 10px 0", fontSize: "1.1rem" }}>{ficha.nome}</h3>
               <p style={{ fontSize: "0.85rem", color: "#888" }}>
                 Criada em: {new Date(ficha.created_at).toLocaleDateString('pt-BR')}
               </p>
               
-              <form action={removerFicha.bind(null, ficha.id)} style={{ marginTop: "15px" }}>
+              {/* Formulário com Confirmação */}
+              <form 
+                action={removerFicha.bind(null, ficha.id)} 
+                onSubmit={(e) => {
+                  if (!confirm("Você tem certeza que deseja apagar esta ficha? Esta ação não pode ser desfeita.")) {
+                    e.preventDefault();
+                  }
+                }}
+                style={{ marginTop: "15px" }}
+              >
                 <button type="submit" style={{ 
-                  backgroundColor: "transparent", 
+                  backgroundColor: "#fff1f0", 
                   color: "#ff4d4f", 
-                  border: "1px solid #ff4d4f", 
+                  border: "1px solid #ffccc7", 
                   borderRadius: "4px", 
-                  padding: "4px 8px", 
+                  padding: "6px 8px", 
                   cursor: "pointer",
                   fontSize: "0.75rem",
-                  width: "100%"
+                  width: "100%",
+                  transition: "all 0.2s"
                 }}>
-                  Remover Ficha
+                  🗑️ Remover Ficha
                 </button>
               </form>
             </div>
