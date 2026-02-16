@@ -95,8 +95,7 @@ export default async function BibliotecaPage() {
                   padding: "6px 8px", 
                   cursor: "pointer",
                   fontSize: "0.75rem",
-                  width: "100%",
-                  transition: "all 0.2s"
+                  width: "100%"
                 }}>
                   🗑️ Remover Ficha
                 </button>
