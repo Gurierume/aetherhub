@@ -26,7 +26,7 @@ export default async function BibliotecaPage() {
       .insert([{ 
         nome: 'Nova Ficha Estratégica', 
         usuario_id: user?.id,
-        tema_id: 'base' // Já preparando para o sistema de skins
+        tema_id: 'base' 
       }]);
     revalidatePath('/biblioteca');
   }
@@ -99,8 +99,7 @@ export default async function BibliotecaPage() {
                   padding: "6px 8px", 
                   cursor: "pointer",
                   fontSize: "0.75rem",
-                  width: "100%",
-                  transition: "all 0.2s"
+                  width: "100%"
                 }}>
                   🗑️ Remover Ficha
                 </button>
