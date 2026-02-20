@@ -2,6 +2,7 @@ import { UserButton, SignOutButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
+import Link from "next/link"; // Adicionado para permitir a navegação
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -77,8 +78,13 @@ export default async function BibliotecaPage() {
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
           {fichas?.map((ficha) => (
-            <div key={ficha.id} style={{ padding: "1.5rem", border: "1px solid #ddd", borderRadius: "10px", backgroundColor: "#fff" }}>
-              <h3 style={{ margin: "0 0 10px 0" }}>{ficha.nome}</h3>
+            <div key={ficha.id} style={{ padding: "1.5rem", border: "1px solid #ddd", borderRadius: "10px", backgroundColor: "#fff", transition: "transform 0.2s", cursor: "pointer" }}>
+              {/* O Link abaixo leva para a página específica da ficha usando o ID do banco */}
+              <Link href={`/biblioteca/${ficha.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <h3 style={{ margin: "0 0 10px 0", color: "#0070f3" }}>{ficha.nome}</h3>
+                <p style={{ fontSize: "0.8rem", color: "#888", marginBottom: "15px" }}>Tema: {ficha.tema_id}</p>
+              </Link>
+              
               <form action={removerFicha.bind(null, ficha.id)}>
                 <button type="submit" style={{ color: "#ff4d4f", background: "none", border: "1px solid #ffccc7", padding: "5px", borderRadius: "4px", cursor: "pointer", width: "100%" }}>
                   🗑️ Remover
