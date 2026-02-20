@@ -3,6 +3,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
+// Cliente Supabase com proteção para variáveis ausentes
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -11,12 +12,14 @@ const supabase = createClient(
 export default async function BibliotecaPage() {
   const user = await currentUser();
 
-  // Se não houver usuário ou chaves, exibe aviso em vez de travar o servidor
-  if (!user || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    return <div style={{ padding: "2rem" }}>Carregando perfil ou configurando chaves...</div>;
+  // Se o usuário não for encontrado, o middleware deve redirecionar, 
+  // mas deixamos este aviso por segurança extra.
+  if (!user) {
+    return <div style={{ padding: "2rem" }}>Verificando sua sessão...</div>;
   }
 
-  const { data: fichas } = await supabase
+  // Busca as fichas com tratamento de erro
+  const { data: fichas, error } = await supabase
     .from('decks')
     .select('*')
     .eq('usuario_id', user.id)
@@ -34,6 +37,7 @@ export default async function BibliotecaPage() {
         usuario_id: userAuth.id,
         tema_id: 'base' 
       }]);
+    
     revalidatePath('/biblioteca');
   }
 
@@ -47,6 +51,7 @@ export default async function BibliotecaPage() {
       .delete()
       .eq('id', id)
       .eq('usuario_id', userAuth.id);
+    
     revalidatePath('/biblioteca');
   }
 
@@ -55,7 +60,7 @@ export default async function BibliotecaPage() {
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #eaeaea", paddingBottom: "1rem" }}>
         <div>
           <h1 style={{ margin: 0 }}>AetherHub</h1>
-          <p style={{ color: "#666" }}>Coleção de <strong>{user.firstName || "Explorador"}</strong></p>
+          <p style={{ color: "#666" }}>Bem-vindo, <strong>{user.firstName || "Explorador"}</strong></p>
         </div>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <SignOutButton redirectUrl="/">
@@ -75,12 +80,16 @@ export default async function BibliotecaPage() {
           </form>
         </div>
 
+        {error && <p style={{ color: 'red' }}>Erro ao carregar fichas. Verifique suas chaves no painel da Vercel.</p>}
+
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
-          {fichas?.map((ficha) => (
-            <div key={ficha.id} style={{ padding: "1.5rem", border: "1px solid #ddd", borderRadius: "10px", backgroundColor: "#fff" }}>
+          {fichas && fichas.map((ficha) => (
+            <div key={ficha.id} style={{ padding: "1.5rem", border: "1px solid #ddd", borderRadius: "10px", backgroundColor: "#fff", position: "relative" }}>
               <h3 style={{ margin: "0 0 10px 0" }}>{ficha.nome}</h3>
-              <form action={removerFicha.bind(null, ficha.id)}>
-                <button type="submit" style={{ color: "#ff4d4f", background: "none", border: "1px solid #ffccc7", padding: "5px", borderRadius: "4px", cursor: "pointer", width: "100%" }}>
+              <p style={{ fontSize: "0.8rem", color: "#888" }}>Tema: {ficha.tema_id}</p>
+              
+              <form action={removerFicha.bind(null, ficha.id)} onSubmit={(e) => !confirm("Apagar?") && e.preventDefault()}>
+                <button type="submit" style={{ marginTop: "10px", color: "#ff4d4f", background: "none", border: "1px solid #ffccc7", borderRadius: "4px", cursor: "pointer", width: "100%" }}>
                   🗑️ Remover
                 </button>
               </form>
